@@ -64,7 +64,7 @@ public class SQSService {
     }
 
 
-    public List<Message> consumeMessages(MESSAGE_QUEUE_TYPE messageQueueType) {
+    public List<Map<String,Object>> consumeMessages(MESSAGE_QUEUE_TYPE messageQueueType) {
         String queueURL = messageQueueType==MESSAGE_QUEUE_TYPE.FIFO?fifoQueueURL:standardQueueURL;
 
         ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
@@ -76,7 +76,19 @@ public class SQSService {
         List<Message> messages = getSQSClient().receiveMessage(receiveMessageRequest)
                 .messages();
         messages.forEach(message -> deleteMessage(message, queueURL));
-        return messages;
+        return processMessages(messages);
+    }
+
+    private List<Map<String,Object>> processMessages(List<Message> messages){
+        return messages.stream().map(message -> Map.of(
+                "messageId", message.messageId(),
+                "body", message.body(),
+                "attributes", message.messageAttributes()
+                        .entrySet().stream().map(attr -> Map.of(
+                                "key", attr.getKey(),
+                                "value", attr.getValue().stringValue()
+                        ))
+        )).toList();
     }
 
 

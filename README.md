@@ -15,7 +15,6 @@ Copy the accessKey and secret and populate the following application properties.
 aws.accessKey=<Access key>
 aws.secret=<Secret>
 ```
-
 Note: Make sure that this user(or the group it belongs to) has AmazonSQSFullAccess policy attached to it.
 
 ### Launch Application
